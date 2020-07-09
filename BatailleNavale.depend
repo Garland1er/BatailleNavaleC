@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1594047038 source:d:\3emeanneeesgi\bataillenavalec\bataillenavale\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
