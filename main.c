@@ -29,6 +29,11 @@ typedef struct {
 	char dir;
 } Coordonnees;
 
+void clearscreen(){
+    for ( int i = 0; i < 100; i++ )
+        printf("\n");
+}
+
 void afficheLogo(){
     printf("()                    _\n");
     printf("||-.,.,.,.,,.,.,...-'\" ;\n");
@@ -50,9 +55,8 @@ void afficheLogo(){
 
 int** initPlateau(){
     int** plateau = (int**)malloc(sizeof(int*)*TAILLE_PLATEAU);
-    for(int i=0;i<TAILLE_PLATEAU;i++){
+    for(int i=0;i<TAILLE_PLATEAU;i++)
         plateau[i] = (int*)malloc(sizeof(int)*TAILLE_PLATEAU);
-    }
     for(int i=0;i<TAILLE_PLATEAU;i++){
         for(int j=0;j<TAILLE_PLATEAU;j++){
             plateau[i][j]=0;
@@ -166,7 +170,7 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 	} while (done == 0);
 
 	//ajoute la case dans le tableau
-    if (c.dir == 'v') {
+    if (c.dir == 'h') {
         for (i = c.y; i < c.y + taille; i++) {
 			plateau[i][c.x] = val_bateau;
 		}
@@ -188,8 +192,11 @@ int** initJeu(int** plateau){
     return plateau;
 }
 
-int main()
-{
+int tourJoueur(int** plateau, int** plateau_adverse){
+
+}
+
+int main(){
     int** terrain_j1 = initPlateau();
     int** terrain_j2_adverse = initPlateau();   //vision de joueur 1 sur joueur 2
     int** terrain_j2 = initPlateau();
@@ -198,6 +205,7 @@ int main()
     Coordonnees attaque;
 
     afficheLogo();
+    clearscreen();
 
     //génération des bateaux de joueur 1
     terrain_j1 = initJeu(terrain_j1);
@@ -205,11 +213,24 @@ int main()
     //génération des bateaux de joueur 2
     //terrain_j2 = initJeu(terrain_j2);
 
-    affichePlateau(terrain_j1);
+    int finpartie=0;
+    do{
+        clearscreen();
+        printf("Tour joueur 1 :");
+        finpartie = tourJoueur(terrain_j1, terrain_j2_adverse);
 
-    /*printf("attaque en h5 \n");
-    attaque = strToCoord("h5",0);
-    printf("x(numéro) : %i et y(lettre) : %i \n",attaque.x,attaque.y);*/
+        clearscreen();
+        printf("Tour joueur 2 :");
+        if(!finpartie == 0) finpartie = tourJoueur(terrain_j1, terrain_j2_adverse);
+    }while(finpartie == 0);
 
+    if(finpartie == 1) {
+        clearscreen();
+        printf("Victoire du joueur 1");
+    }
+    else{
+        clearscreen();
+        printf("Victoire du joueur 2");
+    }
 
 }
