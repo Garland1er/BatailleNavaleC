@@ -19,18 +19,19 @@
 #define CROISEUR_TOUCHE 41
 #define CONTRE_TORPILLEUR 30
 #define CONTRE_TORPILLEUR_TOUCHE 31
-#define SOUS_MARIN 32
-#define SOUS_MARIN_TOUCHE 33
-#define TORPILLEUR 20
-#define TORPILLEUR_TOUCHE 21
+#define SOUS_MARIN 20
+#define SOUS_MARIN_TOUCHE 21
+#define TORPILLEUR 10
+#define TORPILLEUR_TOUCHE 11
 
+//Rappel : plateau[lettre][chiffre] et y = lettre et x = chiffre
 typedef struct {
 	int x, y;
 	char dir;
 } Coordonnees;
 
 void clearscreen(){
-    for ( int i = 0; i < 100; i++ )
+    for ( int i = 0; i < 50; i++ )
         printf("\n");
 }
 
@@ -66,18 +67,32 @@ int** initPlateau(){
 }
 
 void affichePlateau(int** plateau){
-    printf("   ");
+    printf("  ");
     for(int j=0;j<TAILLE_PLATEAU;j++){
             printf("  %i  ",j+1);
     }
     printf("\n");
     for(int i=0;i<TAILLE_PLATEAU;i++){
-        printf("%c ",65+i);
+        printf("%c ",'A'+i);
         for(int j=0;j<TAILLE_PLATEAU;j++){
-            printf("  %i  ",plateau[i][j]);
+            if(plateau[i][j]<10)
+                printf("  %i  ",plateau[i][j]);
+            else
+                printf(" %i  ",plateau[i][j]);
         }
         printf("\n");
     }
+}
+
+void afficheValCases(){
+    printf("\nValeur correspondante aux cases :\n");
+    printf("eau : %i / eau touchee : %i\n",EAU,EAU_TOUCHE);
+    printf("bateau touche (plateau adverse) : %i\n",BATEAU_TOUCHE);
+    printf("porte-avion : %i / porte-avion touche : %i\n",PORTE_AVION,PORTE_AVION_TOUCHE);
+    printf("croiseur : %i / croiseur touche : %i\n",CROISEUR,CROISEUR_TOUCHE);
+    printf("contre-torpilleur : %i / contre-torpilleur touche : %i\n",CONTRE_TORPILLEUR, CONTRE_TORPILLEUR_TOUCHE);
+    printf("sous-marin : %i / sous-marin touche: %i\n",SOUS_MARIN,SOUS_MARIN_TOUCHE);
+    printf("torpilleur : %i / torpilleur touche : %i\n",TORPILLEUR,TORPILLEUR_TOUCHE);
 }
 
 Coordonnees strToCoord(char string[], int direction) {
@@ -108,11 +123,11 @@ Coordonnees strToCoord(char string[], int direction) {
 int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
     int done, error, i;
 	Coordonnees c;
-	char orientation[10], entree_util[4], reponse;
+	char orientation[10], str_coord[3], reponse;
 
 	affichePlateau(plateau);
 
-	printf("Veuillez placer le %s (%i cases) en fournissant une coordonnée et son orientation(vers la droite avec v ou vers le bas avec h), par exemple 'a7v' ou 'd2h'\n\n", nom, taille);
+	printf("Veuillez placer le %s (%i cases) en fournissant une coordonnee et son orientation(vers la droite avec v ou vers le bas avec h), par exemple 'a7v' ou 'd2h'\n\n", nom, taille);
 
 	do {
 		error = 0;
@@ -120,24 +135,24 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 		strcpy(orientation, "horizontal");
 
 		printf("Position : ");
-		scanf("%s", entree_util);
+		scanf("%s", str_coord);
 
-		c = strToCoord(entree_util, 1);
+		c = strToCoord(str_coord, 1);
 
 		if (c.x < 0 || c.y < 0 || c.x > TAILLE_PLATEAU || c.y > TAILLE_PLATEAU) {
-			puts(" > Coordonnées hors tableau.");
+			puts(" > Coordonnees hors tableau.");
 			error = 1;
 		} else if (c.dir == 'v') {
 			strcpy(orientation, "vertical");
 			// Sortie de carte
 			if (c.y + taille > TAILLE_PLATEAU) {
-				printf(" > Vous ne pouvez pas placer votre bateau ici. Il sortirait de la carte...(y=%i)\n", c.y);
+				printf(" > Vous ne pouvez pas placer votre bateau ici. Il sortirait de la carte...\n");
 				error = 1;
 			} else {
 				// Chevauchements
 				for (i = c.y; i < c.y + taille; i++) {
 					if (plateau[i][c.x] != EAU) {
-						puts(" > Il y a déjà un bateau ici...");
+						puts(" > Il y a dejà un bateau ici...");
 						error = 1;
 
 						break;
@@ -145,13 +160,13 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 				}
 			}
 		} else if (c.x + taille > TAILLE_PLATEAU) {
-			printf(" > Vous ne pouvez pas placer votre bateau ici. Il sortirait de la carte...(x=%i)\n", c.x);
+			printf(" > Vous ne pouvez pas placer votre bateau ici. Il sortirait de la carte...\n");
 			error = 1;
 		} else {
 			// Chevauchements
 			for (i = c.x; i < c.x + taille; i++) {
 				if (plateau[c.y][i] != EAU) {
-					puts(" > Il y a déjà un bateau ici...");
+					puts(" > Il y a dejà un bateau ici...");
 					error = 1;
 
 					break;
@@ -170,7 +185,7 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 	} while (done == 0);
 
 	//ajoute la case dans le tableau
-    if (c.dir == 'h') {
+    if (c.dir == 'v') {
         for (i = c.y; i < c.y + taille; i++) {
 			plateau[i][c.x] = val_bateau;
 		}
@@ -192,38 +207,116 @@ int** initJeu(int** plateau){
     return plateau;
 }
 
-int tourJoueur(int** plateau, int** plateau_adverse){
+int tourJoueur(int** plateau, int** vision_plateau_adverse, int** plateau_adverse){
+    Coordonnees attaque;
+    int error, done, victoire=2;
+    char str_coord[2], reponse;
 
+    afficheValCases();
+    printf("Votre plateau :\n");
+    affichePlateau(plateau);
+    printf("\nLe plateau adverse :\n");
+    affichePlateau(vision_plateau_adverse);
+
+    do {
+        error = 0;
+		done = 0;
+
+        printf("Indiquez les Coordonnees de l'attaque : ");
+        scanf("%s", str_coord);
+        attaque = strToCoord(str_coord, 0);
+
+        if (attaque.x < 0 || attaque.y < 0 || attaque.x > TAILLE_PLATEAU || attaque.y > TAILLE_PLATEAU) {
+			puts(" > Coordonnees hors tableau.");
+			error = 1;
+        }
+
+        if (error == 0) {
+            printf("Attaque en %c:%i. Est-ce correct ? [o/N] ", attaque.y + 'a', attaque.x + 1);
+            scanf(" %c", &reponse);
+			if (reponse == 'o' || reponse == 'O') {
+				done = 1;
+			}
+        }
+    }while(done == 0);
+
+    switch(plateau_adverse[attaque.y][attaque.x]){
+        case EAU :
+            plateau_adverse[attaque.y][attaque.x]=EAU_TOUCHE;
+            vision_plateau_adverse[attaque.y][attaque.x]=EAU_TOUCHE;
+            break;
+        case PORTE_AVION :
+            plateau_adverse[attaque.y][attaque.x]=PORTE_AVION_TOUCHE;
+            vision_plateau_adverse[attaque.y][attaque.x]=BATEAU_TOUCHE;
+            break;
+        case CROISEUR :
+            plateau_adverse[attaque.y][attaque.x]=CROISEUR_TOUCHE;
+            vision_plateau_adverse[attaque.y][attaque.x]=BATEAU_TOUCHE;
+            break;
+        case CONTRE_TORPILLEUR :
+            plateau_adverse[attaque.y][attaque.x]=CONTRE_TORPILLEUR_TOUCHE;
+            vision_plateau_adverse[attaque.y][attaque.x]=BATEAU_TOUCHE;
+            break;
+        case SOUS_MARIN :
+            plateau_adverse[attaque.y][attaque.x]=SOUS_MARIN_TOUCHE;
+            vision_plateau_adverse[attaque.y][attaque.x]=BATEAU_TOUCHE;
+            break;
+        case TORPILLEUR :
+            plateau_adverse[attaque.y][attaque.x]=TORPILLEUR_TOUCHE;
+            vision_plateau_adverse[attaque.y][attaque.x]=BATEAU_TOUCHE;
+            break;
+    }
+
+    for(int i=0;i<TAILLE_PLATEAU;i++){
+        for(int j=0;j<TAILLE_PLATEAU;j++){
+            if (plateau_adverse[i][j]==PORTE_AVION || plateau_adverse[i][j]==CROISEUR || plateau_adverse[i][j]==CONTRE_TORPILLEUR || plateau_adverse[i][j]==SOUS_MARIN || plateau_adverse[i][j]==TORPILLEUR)
+                victoire=0;
+                break;
+        }
+        if (!victoire)
+            break;
+    }
+    return victoire;
 }
 
 int main(){
+
+    //------------------------------------------------initialisation------------------------------------------------//
     int** terrain_j1 = initPlateau();
     int** terrain_j2_adverse = initPlateau();   //vision de joueur 1 sur joueur 2
     int** terrain_j2 = initPlateau();
     int** terrain_j1_adverse = initPlateau();   //vision de joueur 2 sur joueur 1
 
-    Coordonnees attaque;
-
     afficheLogo();
+    printf("\nAppuyer sur entree pour demarrer");
+    getchar();
     clearscreen();
 
-    //génération des bateaux de joueur 1
+    printf("Joueur 1 place ses bateaux :\n\n");
     terrain_j1 = initJeu(terrain_j1);
 
-    //génération des bateaux de joueur 2
-    //terrain_j2 = initJeu(terrain_j2);
+    clearscreen();
+    printf("Joueur 2 place ses bateaux :\n\n");
+    terrain_j2 = initJeu(terrain_j2);
 
-    int finpartie=0;
+    //------------------------------------------------partie en cours------------------------------------------------//
+    int finpartie=0; char att_valid;
     do{
         clearscreen();
-        printf("Tour joueur 1 :");
-        finpartie = tourJoueur(terrain_j1, terrain_j2_adverse);
+        printf("Tour joueur 1, appuyer sur entree :\n");
+        scanf(" %c", &att_valid);
+        finpartie = tourJoueur(terrain_j1, terrain_j2_adverse, terrain_j2);
 
-        clearscreen();
-        printf("Tour joueur 2 :");
-        if(!finpartie == 0) finpartie = tourJoueur(terrain_j1, terrain_j2_adverse);
+        if(!finpartie) {
+            clearscreen();
+            printf("Tour joueur 2, appuyer sur entree :\n");
+            scanf(" %c", &att_valid);
+            finpartie = tourJoueur(terrain_j2, terrain_j1_adverse, terrain_j1);
+        }
+        else finpartie = 1;
     }while(finpartie == 0);
 
+    //------------------------------------------------fin de partie------------------------------------------------//
     if(finpartie == 1) {
         clearscreen();
         printf("Victoire du joueur 1");
