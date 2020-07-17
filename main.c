@@ -24,7 +24,7 @@
 #define TORPILLEUR 10
 #define TORPILLEUR_TOUCHE 11
 
-//Rappel : plateau[lettre][chiffre] et y = lettre et x = chiffre
+//Rappel : plateau[lettre][chiffre] et y = lettre et x = chiffre             /!\Modifier pour utiliser fflush pour vider le buffer clavier et permettre d'utiliser getchar plutot que scanf
 typedef struct {
 	int x, y;
 	char dir;
@@ -152,7 +152,7 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 				// Chevauchements
 				for (i = c.y; i < c.y + taille; i++) {
 					if (plateau[i][c.x] != EAU) {
-						puts(" > Il y a dej‡ un bateau ici...");
+						puts(" > Il y a dej√† un bateau ici...");
 						error = 1;
 
 						break;
@@ -166,7 +166,7 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 			// Chevauchements
 			for (i = c.x; i < c.x + taille; i++) {
 				if (plateau[c.y][i] != EAU) {
-					puts(" > Il y a dej‡ un bateau ici...");
+					puts(" > Il y a dej√† un bateau ici...");
 					error = 1;
 
 					break;
@@ -176,7 +176,7 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 
 		if (error == 0) {
 			getchar();
-			printf("Placement %s en %c:%i. Est-ce correct ? [o/N] ", orientation, c.y + 'a', c.x + 1);
+			printf("Placement %s en %c:%i. Est-ce correct ? [O/N] ", orientation, c.y + 'a', c.x + 1);
 			reponse = getchar();
 			if (reponse == 'o' || reponse == 'O') {
 				done = 1;
@@ -230,14 +230,8 @@ int tourJoueur(int** plateau, int** vision_plateau_adverse, int** plateau_advers
 			puts(" > Coordonnees hors tableau.");
 			error = 1;
         }
-
-        if (error == 0) {
-            printf("Attaque en %c:%i. Est-ce correct ? [o/N] ", attaque.y + 'a', attaque.x + 1);
-            scanf(" %c", &reponse);
-			if (reponse == 'o' || reponse == 'O') {
-				done = 1;
-			}
-        }
+	else
+		done = 1;
     }while(done == 0);
 
     switch(plateau_adverse[attaque.y][attaque.x]){
