@@ -36,22 +36,22 @@ void clearscreen(){
 }
 
 void afficheLogo(){
-    printf("()                    _\n");
-    printf("||-.,.,.,.,,.,.,...-'\" ;\n");
-    printf("||     _          _    |;=============================================================\n");
-    printf("||   _( )        ( )_  |;                        Bataille Navale\n");
-    printf("||  (_  \\ /\\\\//\\ / ._) |;\n");
-    printf("||    '\\ (  )(  ) /    |; fait par Valentin Poudens, Nina Fernette, Adrien D'Arco \n");
-    printf("||       \\\\//\\\\//      |;=============================================================\n");
-    printf("||        .))((.       |;\n");
-    printf("||      _/ |||| \\_     |;\n");
-    printf("||    ('  /\"\"\"\"\\  ')   |;\n");
-    printf("||     \"(_)    (_)\"    |;\n");
-    printf("||-.,.,.,.,.,.,.,.,..-';\n");
-    printf("||;\n");
-    printf("||;\n");
-    printf("||;\n");
-    printf("||;\n");
+    puts("()                    _");
+    puts("||-.,.,.,.,,.,.,...-'\" ;");
+    puts("||     _          _    |;=============================================================");
+    puts("||   _( )        ( )_  |;                        Bataille Navale");
+    puts("||  (_  \\ /\\\\//\\ / ._) |;");
+    puts("||    '\\ (  )(  ) /    |; fait par Valentin Poudens, Nina Fernette, Adrien D'Arco ");
+    puts("||       \\\\//\\\\//      |;=============================================================");
+    puts("||        .))((.       |;");
+    puts("||      _/ |||| \\_     |;");
+    puts("||    ('  /\"\"\"\"\\  ')   |;");
+    puts("||     \"(_)    (_)\"    |;");
+    puts("||-.,.,.,.,.,.,.,.,..-';");
+    puts("||;");
+    puts("||;");
+    puts("||;");
+    puts("||;");
 }
 
 int** initPlateau(){
@@ -85,7 +85,7 @@ void affichePlateau(int** plateau){
 }
 
 void afficheValCases(){
-    printf("\nValeur correspondante aux cases :\n");
+    puts("Valeur correspondante aux cases :");
     printf("eau : %i / eau touchee : %i\n",EAU,EAU_TOUCHE);
     printf("bateau touche (plateau adverse) : %i\n",BATEAU_TOUCHE);
     printf("porte-avion : %i / porte-avion touche : %i\n",PORTE_AVION,PORTE_AVION_TOUCHE);
@@ -140,19 +140,19 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 		c = strToCoord(str_coord, 1);
 
 		if (c.x < 0 || c.y < 0 || c.x > TAILLE_PLATEAU || c.y > TAILLE_PLATEAU) {
-			puts(" > Coordonnees hors tableau.");
+			puts("Coordonnees hors tableau.");
 			error = 1;
 		} else if (c.dir == 'v') {
 			strcpy(orientation, "vertical");
 			// Sortie de carte
 			if (c.y + taille > TAILLE_PLATEAU) {
-				printf(" > Vous ne pouvez pas placer votre bateau ici. Il sortirait de la carte...\n");
+				puts("Vous ne pouvez pas placer votre bateau ici. Il sortirait de la carte.");
 				error = 1;
 			} else {
 				// Chevauchements
 				for (i = c.y; i < c.y + taille; i++) {
 					if (plateau[i][c.x] != EAU) {
-						puts(" > Il y a dejà un bateau ici...");
+						puts("Il y a dejà un bateau ici.");
 						error = 1;
 
 						break;
@@ -160,13 +160,13 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 				}
 			}
 		} else if (c.x + taille > TAILLE_PLATEAU) {
-			printf(" > Vous ne pouvez pas placer votre bateau ici. Il sortirait de la carte...\n");
+			puts("Vous ne pouvez pas placer votre bateau ici. Il sortirait de la carte.");
 			error = 1;
 		} else {
 			// Chevauchements
 			for (i = c.x; i < c.x + taille; i++) {
 				if (plateau[c.y][i] != EAU) {
-					puts(" > Il y a dejà un bateau ici...");
+					puts("Il y a dejà un bateau ici.");
 					error = 1;
 
 					break;
@@ -213,9 +213,9 @@ int tourJoueur(int** plateau, int** vision_plateau_adverse, int** plateau_advers
     char str_coord[2], reponse;
 
     afficheValCases();
-    printf("Votre plateau :\n");
+    puts("Votre plateau :");
     affichePlateau(plateau);
-    printf("\nLe plateau adverse :\n");
+    puts("Le plateau adverse :");
     affichePlateau(vision_plateau_adverse);
 
     do {
@@ -227,7 +227,7 @@ int tourJoueur(int** plateau, int** vision_plateau_adverse, int** plateau_advers
         attaque = strToCoord(str_coord, 0);
 
         if (attaque.x < 0 || attaque.y < 0 || attaque.x > TAILLE_PLATEAU || attaque.y > TAILLE_PLATEAU) {
-			puts(" > Coordonnees hors tableau.");
+			puts("Coordonnees hors tableau.");
 			error = 1;
         }
 	else
@@ -282,29 +282,30 @@ int main(){
     int** terrain_j1_adverse = initPlateau();   //vision de joueur 2 sur joueur 1
 
     afficheLogo();
-    printf("\nAppuyer sur entree pour demarrer");
+    puts("Appuyer sur entree pour demarrer");
     getchar();
     clearscreen();
 
-    printf("Joueur 1 place ses bateaux :\n\n");
+    puts("Joueur 1 place ses bateaux :");
     terrain_j1 = initJeu(terrain_j1);
 
     clearscreen();
-    printf("Joueur 2 place ses bateaux :\n\n");
+    puts("Joueur 2 place ses bateaux :");
     terrain_j2 = initJeu(terrain_j2);
 
     //------------------------------------------------partie en cours------------------------------------------------//
     int finpartie=0; char att_valid;
     do{
         clearscreen();
-        printf("Tour joueur 1, appuyer sur entree :\n");
-        scanf(" %c", &att_valid);
+        puts("Tour joueur 1, appuyer sur entree :");
+        fflush(stdin);
+        getchar();
         finpartie = tourJoueur(terrain_j1, terrain_j2_adverse, terrain_j2);
 
         if(!finpartie) {
             clearscreen();
-            printf("Tour joueur 2, appuyer sur entree :\n");
-            scanf(" %c", &att_valid);
+            puts("Tour joueur 2, appuyer sur entree :");
+            getchar();
             finpartie = tourJoueur(terrain_j2, terrain_j1_adverse, terrain_j1);
         }
         else finpartie = 1;
