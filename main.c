@@ -100,6 +100,12 @@ Coordonnees strToCoord(char string[], int direction) {
 	char strX[3];
 	int i;
 
+	if(strlen(string)<2 || strlen(string)>4){
+        c.x=-1;
+        c.y=-1;
+        return c;
+	}//|| (direction > 0 && (string[strlen(string) - 1]!='v' || string[strlen(string) - 1]!='h'))
+
 	if (direction > 0) {
 		direction = 1;
 		c.dir = string[strlen(string) - 1];
@@ -140,7 +146,7 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 		c = strToCoord(str_coord, 1);
 
 		if (c.x < 0 || c.y < 0 || c.x > TAILLE_PLATEAU || c.y > TAILLE_PLATEAU) {
-			puts("Coordonnees hors tableau.");
+			puts("Coordonnees hors tableau/incorrectes.");
 			error = 1;
 		} else if (c.dir == 'v') {
 			strcpy(orientation, "vertical");
@@ -228,7 +234,7 @@ int tourJoueur(int** plateau, int** vision_plateau_adverse, int** plateau_advers
         attaque = strToCoord(str_coord, 0);
 
         if (attaque.x < 0 || attaque.y < 0 || attaque.x > TAILLE_PLATEAU || attaque.y > TAILLE_PLATEAU) {
-			puts("Coordonnees hors tableau.");
+			puts("Coordonnees hors tableau/incorrectes.");
 			error = 1;
         }
 	else
