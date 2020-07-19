@@ -97,7 +97,7 @@ void afficheValCases(){
 
 Coordonnees strToCoord(char string[], int direction) {
 	Coordonnees c;
-	char strX[2 + 1];
+	char strX[3];
 	int i;
 
 	if (direction > 0) {
@@ -123,7 +123,7 @@ Coordonnees strToCoord(char string[], int direction) {
 int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
     int done, error, i;
 	Coordonnees c;
-	char orientation[10], str_coord[3], reponse;
+	char orientation[11], str_coord[4], reponse;
 
 	affichePlateau(plateau);
 
@@ -175,13 +175,14 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 		}
 
 		if (error == 0) {
-			getchar();
+            fflush(stdin);
 			printf("Placement %s en %c:%i. Est-ce correct ? [O/N] ", orientation, c.y + 'a', c.x + 1);
 			reponse = getchar();
 			if (reponse == 'o' || reponse == 'O') {
 				done = 1;
 			}
 		}
+
 	} while (done == 0);
 
 	//ajoute la case dans le tableau
@@ -305,6 +306,7 @@ int main(){
         if(!finpartie) {
             clearscreen();
             puts("Tour joueur 2, appuyer sur entree :");
+            fflush(stdin);
             getchar();
             finpartie = tourJoueur(terrain_j2, terrain_j1_adverse, terrain_j1);
         }
