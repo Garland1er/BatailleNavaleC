@@ -24,7 +24,7 @@
 #define TORPILLEUR 10
 #define TORPILLEUR_TOUCHE 11
 
-//Rappel : plateau[lettre][chiffre] et y = lettre et x = chiffre             /!\Modifier pour utiliser fflush pour vider le buffer clavier et permettre d'utiliser getchar plutot que scanf
+//Rappel : plateau[lettre][chiffre] et y = lettre et x = chiffre
 typedef struct {
 	int x, y;
 	char dir;
@@ -133,7 +133,7 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 
 	affichePlateau(plateau);
 
-	printf("Veuillez placer le %s (%i cases) en fournissant une coordonnee et son orientation(vers la droite avec v ou vers le bas avec h), par exemple 'a7v' ou 'd2h'\n\n", nom, taille);
+	printf("Veuillez placer le %s (%i cases) en fournissant une coordonnee et son orientation(vers la droite avec h ou vers le bas avec v), par exemple 'a7v' ou 'd2h'\n\n", nom, taille);
 
 	do {
 		error = 0;
