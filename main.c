@@ -66,6 +66,12 @@ int** initPlateau(){
     return plateau;
 }
 
+void freePlateau(int** plateau){
+    for(int i=0;i<TAILLE_PLATEAU;i++)
+        free(plateau[i]);
+    free(plateau);
+}
+
 void affichePlateau(int** plateau){
     printf("  ");
     for(int j=0;j<TAILLE_PLATEAU;j++){
@@ -100,11 +106,21 @@ Coordonnees strToCoord(char string[], int direction) {
 	char strX[3];
 	int i;
 
-	if(strlen(string)<2 || strlen(string)>4){
-        c.x=-1;
-        c.y=-1;
-        return c;
-	}//|| (direction > 0 && (string[strlen(string) - 1]!='v' || string[strlen(string) - 1]!='h'))
+	if (direction > 0) {
+        if(strlen(string)<3 || strlen(string)>4){
+            c.x=-1;
+            c.y=-1;
+            return c;
+        }
+	}
+	else{
+        if(strlen(string)<3 || strlen(string)>4){
+            c.x=-1;
+            c.y=-1;
+            return c;
+        }
+	}
+
 
 	if (direction > 0) {
 		direction = 1;
@@ -329,4 +345,8 @@ int main(){
         printf("Victoire du joueur 2");
     }
 
+    freePlateau(terrain_j1);
+    freePlateau(terrain_j2_adverse);
+    freePlateau(terrain_j2);
+    freePlateau(terrain_j1_adverse);
 }
