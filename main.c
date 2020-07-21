@@ -114,7 +114,7 @@ Coordonnees strToCoord(char string[], int direction) {
         }
 	}
 	else{
-        if(strlen(string)<3 || strlen(string)>4){
+        if(strlen(string)<2 || strlen(string)>4){
             c.x=-1;
             c.y=-1;
             return c;
@@ -221,9 +221,9 @@ int** placeBateau(int** plateau,char* nom, int taille, int val_bateau){
 }
 
 int** initJeu(int** plateau){
-    plateau = placeBateau(plateau ,"porte-avion", TAILLE_PORTE_AVION, PORTE_AVION);
-    plateau = placeBateau(plateau ,"croiseur", TAILLE_CROISEUR, CROISEUR);
-    plateau = placeBateau(plateau ,"contre torpilleur", TAILLE_CONTRE_TORPILLEUR_SOUS_MARIN, CONTRE_TORPILLEUR);
+    //plateau = placeBateau(plateau ,"porte-avion", TAILLE_PORTE_AVION, PORTE_AVION);
+    //plateau = placeBateau(plateau ,"croiseur", TAILLE_CROISEUR, CROISEUR);
+    //plateau = placeBateau(plateau ,"contre torpilleur", TAILLE_CONTRE_TORPILLEUR_SOUS_MARIN, CONTRE_TORPILLEUR);
     plateau = placeBateau(plateau ,"sous marin", TAILLE_CONTRE_TORPILLEUR_SOUS_MARIN, SOUS_MARIN);
     plateau = placeBateau(plateau ,"torpilleur", TAILLE_TORPILLEUR, TORPILLEUR);
 
@@ -286,14 +286,46 @@ int tourJoueur(int** plateau, int** vision_plateau_adverse, int** plateau_advers
 
     for(int i=0;i<TAILLE_PLATEAU;i++){
         for(int j=0;j<TAILLE_PLATEAU;j++){
-            if (plateau_adverse[i][j]==PORTE_AVION || plateau_adverse[i][j]==CROISEUR || plateau_adverse[i][j]==CONTRE_TORPILLEUR || plateau_adverse[i][j]==SOUS_MARIN || plateau_adverse[i][j]==TORPILLEUR)
+            if (plateau_adverse[i][j]==PORTE_AVION || plateau_adverse[i][j]==CROISEUR || plateau_adverse[i][j]==CONTRE_TORPILLEUR || plateau_adverse[i][j]==SOUS_MARIN || plateau_adverse[i][j]==TORPILLEUR){
                 victoire=0;
                 break;
+            }
         }
-        if (!victoire)
-            break;
     }
     return victoire;
+}
+
+void sauvegarderScore(int victoire_joueur){
+    FILE* file = fopen("score.txt","r+");
+    if (file==NULL){
+        file = fopen("score.txt","a+");
+        if (victoire_joueur==1){
+            fprintf(file,"Score Joueur 1 : 1\n");
+            fprintf(file,"Score Joueur 2 : 0\n");
+        }
+        else{
+            fprintf(file,"Score Joueur 1 : 0\n");
+            fprintf(file,"Score Joueur 2 : 1\n");
+        }
+    }
+    else{
+        int score1, score2;
+        score1 = strtok(fgets(score1,100,file)," : ")[0];
+        score2 = strtok(fgets(score2,100,file)," : ")[0];
+
+        if (victoire_joueur==1){
+            score1++;
+        }
+        else{
+            score2++;
+        }
+
+        rewind(file);
+        fprintf(file,"Score Joueur 1 : `%i\n",score1);
+        fprintf(file,"Score Joueur 2 : `%i\n",score2);
+    }
+
+    fclose(file);
 }
 
 int main(){
@@ -325,14 +357,15 @@ int main(){
         getchar();
         finpartie = tourJoueur(terrain_j1, terrain_j2_adverse, terrain_j2);
 
-        if(!finpartie) {
+        if(finpartie==0) {
             clearscreen();
             puts("Tour joueur 2, appuyer sur entree :");
             fflush(stdin);
             getchar();
             finpartie = tourJoueur(terrain_j2, terrain_j1_adverse, terrain_j1);
         }
-        else finpartie = 1;
+        else
+            finpartie = 1;
     }while(finpartie == 0);
 
     //------------------------------------------------fin de partie------------------------------------------------//
@@ -344,6 +377,8 @@ int main(){
         clearscreen();
         printf("Victoire du joueur 2");
     }
+
+    //sauvegarderScore(finpartie);
 
     freePlateau(terrain_j1);
     freePlateau(terrain_j2_adverse);
